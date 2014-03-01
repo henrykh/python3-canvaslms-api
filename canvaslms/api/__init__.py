@@ -167,7 +167,7 @@ Parameters:
         # set API access clases to None
         self.courses = None
 
-    def pages(self, url, absoluteUrl=False, verbose=False):
+    def pages(self, url, absoluteUrl=False, verbose=False, args=None):
         """\
 A generator function for use in for loops and any other context accepting a generator function.
 
@@ -178,7 +178,7 @@ Parameters: See the parameter list for the callAPI function.
 
         # Make the initial call to the API  to retrieve the first page
         #   of results.
-        resp = self.callAPI(url, absoluteUrl, verbose)
+        resp = self.callAPI(url, absoluteUrl, verbose, args)
         
         # Always send back the first page of results.
         yield resp
@@ -223,7 +223,7 @@ Parameters: See the parameter list for the callAPI function.
                 checkMorePages = False
                 raise StopIteration()
 
-    def allPages(self, url, absoluteUrl=False, verbose=False):
+    def allPages(self, url, absoluteUrl=False, verbose=False, args=None):
         """\
 Make the initial API request and then make subsequent calls to the API to retrieve any available pages beyond the initial page of results.
 
@@ -238,7 +238,7 @@ Parameters: See the parameter list for the pages function.
         collector = []
 
         # Read all of the pages of results from this API call.
-        for pg in self.pages(url, absoluteUrl, verbose):
+        for pg in self.pages(url, absoluteUrl, verbose, args):
             respBody = getResponseBody(pg)
 
             # If we were calling an API that returns single objects and not
@@ -250,7 +250,7 @@ Parameters: See the parameter list for the pages function.
         return collector
 
 
-    def callAPI(self, url, absoluteUrl=False, verbose=False):
+    def callAPI(self, url, absoluteUrl=False, verbose=False, args=None):
         """\
 Make a call to the API and return a urllib.response object.  See checkJSON, getCharset, and getResponseBody as useful functions for working with the response object.
 
@@ -291,7 +291,7 @@ Parameters:
             print('Attempting to retrieve {} ...'.format(urlstr))
 
         # Create the request, adding in the oauth authorization token
-        req = Request(url=urlstr, headers={'Authorization':' Bearer {}'.format(authToken)})
+        req = Request(url=urlstr, data=args, headers={'Authorization':' Bearer {}'.format(authToken)})
 
         # Make the call and return the urllib.response object.
         return urlopen(req)
